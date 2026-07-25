@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Users, ArrowUpRight, ArrowDownRight, CheckCircle2 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { computeNetBalances } from "@/lib/balances";
@@ -71,7 +72,10 @@ export default async function DashboardPage() {
                   href={`/groups/${g.id}`}
                   className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-brand hover:shadow-sm"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-strong">
+                      <Users size={18} />
+                    </span>
                     <div>
                       <div className="font-semibold">{g.name}</div>
                       <div className="mt-0.5 text-xs text-muted">
@@ -97,13 +101,22 @@ export default async function DashboardPage() {
 
 function BalancePill({ net }: { net: number }) {
   if (Math.abs(net) < 0.005) {
-    return <span className="text-sm text-muted">You&apos;re settled up</span>;
+    return (
+      <span className="flex items-center gap-1.5 text-sm text-muted">
+        <CheckCircle2 size={15} />
+        You&apos;re settled up
+      </span>
+    );
   }
   const owed = net > 0;
+  const Icon = owed ? ArrowUpRight : ArrowDownRight;
   return (
     <span
-      className={`text-sm font-medium ${owed ? "text-positive" : "text-negative"}`}
+      className={`flex items-center gap-1.5 text-sm font-medium ${
+        owed ? "text-positive" : "text-negative"
+      }`}
     >
+      <Icon size={15} />
       {owed ? "You are owed " : "You owe "}
       {money(Math.abs(net))}
     </span>

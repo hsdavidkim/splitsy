@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus, Star } from "lucide-react";
 import { validateConfig, SplitType, SplitEntry } from "@/lib/split";
 import { splitTypeLabel } from "@/lib/format";
 import type { GroupPayload } from "@/lib/types";
@@ -27,9 +28,10 @@ export default function ConfigManager({ group }: { group: GroupPayload }) {
           {!creating && (
             <button
               onClick={() => setCreating(true)}
-              className="rounded-lg bg-brand-strong px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90"
+              className="flex items-center gap-1.5 rounded-lg bg-brand-strong px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90"
             >
-              + New rule
+              <Plus size={15} />
+              New rule
             </button>
           )}
         </div>
@@ -54,7 +56,8 @@ export default function ConfigManager({ group }: { group: GroupPayload }) {
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{c.name}</span>
                       {c.isDefault && (
-                        <span className="rounded-full bg-brand/15 px-2 py-0.5 text-xs font-medium text-brand-strong">
+                        <span className="flex items-center gap-1 rounded-full bg-brand/15 px-2 py-0.5 text-xs font-medium text-brand-strong">
+                          <Star size={11} className="fill-current" />
                           Default
                         </span>
                       )}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Split } from "lucide-react";
 
 export default function AuthForm({
   mode,
@@ -50,6 +51,11 @@ export default function AuthForm({
     <div className="flex flex-1 items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
+          <div className="mb-2 flex justify-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-strong text-white shadow-sm">
+              <Split size={24} />
+            </span>
+          </div>
           <div className="text-3xl font-bold tracking-tight text-brand-strong">
             Splitsy
           </div>

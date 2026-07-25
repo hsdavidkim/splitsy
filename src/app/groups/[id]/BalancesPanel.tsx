@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check, PartyPopper, ArrowRight } from "lucide-react";
 import { money, shortDate } from "@/lib/format";
 import type { GroupPayload } from "@/lib/types";
 
@@ -64,7 +65,10 @@ export default function BalancesPanel({ group }: { group: GroupPayload }) {
       <div className="rounded-2xl border border-border bg-surface p-5">
         <h2 className="mb-3 text-lg font-semibold">Settle up</h2>
         {settled || group.suggestions.length === 0 ? (
-          <p className="text-sm text-muted">Everyone&apos;s square. 🎉</p>
+          <p className="flex items-center gap-1.5 text-sm text-muted">
+            <PartyPopper size={16} className="text-brand-strong" />
+            Everyone&apos;s square.
+          </p>
         ) : (
           <ul className="space-y-2">
             {group.suggestions.map((s) => {
@@ -85,8 +89,9 @@ export default function BalancesPanel({ group }: { group: GroupPayload }) {
                     onClick={() =>
                       recordSettlement(s.fromId, s.toId, s.amount)
                     }
-                    className="shrink-0 rounded-lg bg-brand-strong px-3 py-1.5 text-xs font-medium text-white transition hover:opacity-90 disabled:opacity-60"
+                    className="flex shrink-0 items-center gap-1 rounded-lg bg-brand-strong px-3 py-1.5 text-xs font-medium text-white transition hover:opacity-90 disabled:opacity-60"
                   >
+                    <Check size={13} />
                     {busy === key ? "…" : "Record"}
                   </button>
                 </li>
@@ -102,8 +107,10 @@ export default function BalancesPanel({ group }: { group: GroupPayload }) {
           <ul className="space-y-1.5 text-sm">
             {group.settlements.map((s) => (
               <li key={s.id} className="flex justify-between">
-                <span>
-                  {you(s.fromId)} → {you(s.toId)}
+                <span className="flex items-center gap-1.5">
+                  {you(s.fromId)}
+                  <ArrowRight size={13} className="text-muted" />
+                  {you(s.toId)}
                 </span>
                 <span className="text-muted">
                   {money(s.amount)} · {shortDate(s.date)}

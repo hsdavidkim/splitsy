@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import {
+  Receipt,
+  ArrowLeftRight,
+  SlidersHorizontal,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { money } from "@/lib/format";
 import type { GroupPayload } from "@/lib/types";
 import AddExpense from "./AddExpense";
@@ -11,11 +18,11 @@ import MembersPanel from "./MembersPanel";
 
 type Tab = "expenses" | "balances" | "rules" | "members";
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: "expenses", label: "Expenses" },
-  { key: "balances", label: "Balances" },
-  { key: "rules", label: "Split rules" },
-  { key: "members", label: "Members" },
+const TABS: { key: Tab; label: string; icon: LucideIcon }[] = [
+  { key: "expenses", label: "Expenses", icon: Receipt },
+  { key: "balances", label: "Balances", icon: ArrowLeftRight },
+  { key: "rules", label: "Split rules", icon: SlidersHorizontal },
+  { key: "members", label: "Members", icon: Users },
 ];
 
 export default function GroupClient({ group }: { group: GroupPayload }) {
@@ -46,19 +53,23 @@ export default function GroupClient({ group }: { group: GroupPayload }) {
 
       {/* Tab bar — scrollable on small screens */}
       <div className="mb-5 flex gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-1">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-              tab === t.key
-                ? "bg-brand-strong text-white"
-                : "text-muted hover:text-foreground"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+        {TABS.map((t) => {
+          const Icon = t.icon;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                tab === t.key
+                  ? "bg-brand-strong text-white"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              <Icon size={15} className="shrink-0" />
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       {tab === "expenses" && (

@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 import {
   computeSplit,
   validateConfig,
@@ -20,7 +21,18 @@ export default function AddExpense({ group }: { group: GroupPayload }) {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [amount, setAmount] = useState("");
+  const [date, setDate] = useState("");
   const [paidById, setPaidById] = useState(group.currentUserId);
+
+  // Default the date to today (local). Set after mount so server-rendered HTML
+  // and client agree even if their time zones differ.
+  useEffect(() => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    setDate(`${yyyy}-${mm}-${dd}`);
+  }, []);
   // Default the split mode to the group's saved default config when present.
   const [mode, setMode] = useState<Mode>(group.defaultConfigId ?? "equal");
 
@@ -105,6 +117,7 @@ export default function AddExpense({ group }: { group: GroupPayload }) {
       category: category.trim() || undefined,
       amount: amountNum,
       paidById,
+      date: date || undefined,
     };
     if (mode === "equal") {
       body.participantIds = participants;
@@ -156,6 +169,16 @@ export default function AddExpense({ group }: { group: GroupPayload }) {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium">Date</span>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
           />
         </label>
@@ -313,8 +336,9 @@ export default function AddExpense({ group }: { group: GroupPayload }) {
       <button
         type="submit"
         disabled={loading}
-        className="mt-4 w-full rounded-lg bg-brand-strong px-4 py-2.5 font-medium text-white transition hover:opacity-90 disabled:opacity-60"
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-strong px-4 py-2.5 font-medium text-white transition hover:opacity-90 disabled:opacity-60"
       >
+        <Plus size={17} />
         {loading ? "Adding…" : "Add expense"}
       </button>
     </form>

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import { money, shortDate } from "@/lib/format";
+import { categoryEmoji } from "@/lib/icons";
 import type { GroupPayload } from "@/lib/types";
 
 export default function ExpenseList({ group }: { group: GroupPayload }) {
@@ -41,7 +43,14 @@ export default function ExpenseList({ group }: { group: GroupPayload }) {
           return (
             <li key={e.id} className="py-3 first:pt-0 last:pb-0">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="flex min-w-0 items-start gap-3">
+                  <span
+                    aria-hidden
+                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-background text-lg"
+                  >
+                    {categoryEmoji(e.category, e.description)}
+                  </span>
+                  <div className="min-w-0">
                   <div className="truncate font-medium">{e.description}</div>
                   <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted">
                     <span>
@@ -57,6 +66,7 @@ export default function ExpenseList({ group }: { group: GroupPayload }) {
                         {e.configName}
                       </span>
                     )}
+                  </div>
                   </div>
                 </div>
                 <div className="shrink-0 text-right">
@@ -82,9 +92,10 @@ export default function ExpenseList({ group }: { group: GroupPayload }) {
                 <button
                   onClick={() => remove(e.id)}
                   disabled={deleting === e.id}
-                  className="shrink-0 text-xs text-muted transition hover:text-negative disabled:opacity-50"
+                  aria-label="Delete expense"
+                  className="shrink-0 rounded-md p-1 text-muted transition hover:bg-negative/10 hover:text-negative disabled:opacity-50"
                 >
-                  {deleting === e.id ? "…" : "Delete"}
+                  <Trash2 size={15} />
                 </button>
               </div>
             </li>

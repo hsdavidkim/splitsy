@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -116,9 +117,10 @@ export default async function GroupPage({
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
         <Link
           href="/dashboard"
-          className="mb-4 inline-block text-sm text-muted transition hover:text-foreground"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-muted transition hover:text-foreground"
         >
-          ← All groups
+          <ArrowLeft size={15} />
+          All groups
         </Link>
         <GroupClient group={payload} />
       </main>

@@ -107,7 +107,11 @@ export async function POST(
       amount,
       paidById,
       configId: usedConfigId,
-      date: date ? new Date(date) : undefined,
+      // A plain "YYYY-MM-DD" parses as UTC midnight, which can shift the calendar
+      // day in western time zones — anchor date-only values to local noon.
+      date: date
+        ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T12:00:00` : date)
+        : undefined,
       shares: {
         create: computed.map((c) => ({ userId: c.userId, amount: c.amount })),
       },
