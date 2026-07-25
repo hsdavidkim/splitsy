@@ -1,0 +1,116 @@
+// Splitsy — modular expense splitting
+// Postgres (Neon recommended). One connection string, `DATABASE_URL` — use
+// Neon's DIRECT (non-pooled) connection; at a 2-person scale pooling is
+// unnecessary and this keeps setup to a single env var.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  memberships    GroupMember[]
+  expensesPaid   Expense[]        @relation("PaidBy")
+  shares         ExpenseShare[]
+  settlementsOut Settlement[]     @relation("SettleFrom")
+  settlementsIn  Settlement[]     @relation("SettleTo")
+}
+
+model Group {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  members       GroupMember[]
+  expenses      Expense[]
+  splitConfigs  SplitConfig[]
+  settlements   Settlement[]
+
+  // Group's default saved split configuration — auto-applied to new expenses.
+  defaultConfigId String?      @unique
+  defaultConfig   SplitConfig? @relation("DefaultConfig", fields: [defaultConfigId], references: [id])
+}
+
+model GroupMember {
+  id      String @id @default(cuid())
+  groupId String
+  userId  String
+  role    String @default("member") // "owner" | "member"
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+// The modular, reusable split configuration — the headline feature.
+// type: "equal" | "percentage" | "shares" | "exact"
+// entries: JSON array of { userId, value } where value's meaning depends on type:
+//   percentage -> percent (0-100), shares -> weight, exact -> fixed amount, equal -> ignored
+model SplitConfig {
+  id      String @id @default(cuid())
+  groupId String
+  name    String
+  type    String
+  entries String // JSON string
+
+  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  expenses Expense[]
+
+  defaultForGroup Group? @relation("DefaultConfig")
+
+  createdAt DateTime @default(now())
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  groupId     String
+  description String
+  category    String? // free-text category carried over from imports / manual entry
+  amount      Float
+  paidById    String
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  configId String? // which saved config produced this split (nullable)
+
+  group  Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy User           @relation("PaidBy", fields: [paidById], references: [id])
+  config SplitConfig?   @relation(fields: [configId], references: [id])
+  shares ExpenseShare[]
+}
+
+model ExpenseShare {
+  id        String @id @default(cuid())
+  expenseId String
+  userId    String
+  amount    Float // how much this user owes for this expense
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([expenseId, userId])
+}
+
+model Settlement {
+  id       String   @id @default(cuid())
+  groupId  String
+  fromId   String
+  toId     String
+  amount   Float
+  date     DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  from  User  @relation("SettleFrom", fields: [fromId], references: [id])
+  to    User  @relation("SettleTo", fields: [toId], references: [id])
+}

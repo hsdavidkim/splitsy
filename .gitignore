@@ -32,6 +32,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# local sqlite database — contains REAL financial data + password hashes, never commit
+*.db
+*.db-journal
+prisma/*.db
+
+# personal data exports (e.g. Splitwise CSV) — never commit
+/data
 
 # vercel
 .vercel
