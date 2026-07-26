@@ -3,6 +3,9 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createSession } from "@/lib/auth";
 import { signupsEnabled } from "@/lib/config";
+import { createToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/email";
+import { getBaseUrl } from "@/lib/baseUrl";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(80),
@@ -40,6 +43,10 @@ export async function POST(req: Request) {
     data: { name, email, passwordHash: await hashPassword(password) },
     select: { id: true },
   });
+
+  // Send a verification email (non-blocking — the account works either way).
+  const token = await createToken(user.id, "verify");
+  await sendVerificationEmail(email, `${getBaseUrl(req)}/verify-email/${token}`);
 
   await createSession(user.id);
   return NextResponse.json({ ok: true });

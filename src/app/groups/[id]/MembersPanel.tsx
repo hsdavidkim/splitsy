@@ -17,7 +17,7 @@ export default function MembersPanel({ group }: { group: GroupPayload }) {
     setError(null);
     setNotice(null);
     setLoading(true);
-    const res = await fetch(`/api/groups/${group.id}/members`, {
+    const res = await fetch(`/api/groups/${group.id}/invites`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -25,10 +25,14 @@ export default function MembersPanel({ group }: { group: GroupPayload }) {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setError(data.error ?? "Could not add member");
+      setError(data.error ?? "Could not send invite");
       return;
     }
-    setNotice("Member added.");
+    setNotice(
+      data.status === "added"
+        ? `${data.name} was added to the group.`
+        : `Invitation sent to ${data.email}.`
+    );
     setEmail("");
     router.refresh();
   }
@@ -56,9 +60,10 @@ export default function MembersPanel({ group }: { group: GroupPayload }) {
       </ul>
 
       <form onSubmit={add} className="border-t border-border pt-4">
-        <span className="mb-1 block text-sm font-medium">Add a member</span>
+        <span className="mb-1 block text-sm font-medium">Invite someone</span>
         <p className="mb-2 text-xs text-muted">
-          They need a Splitsy account. Enter the email they signed up with.
+          Enter their email. If they already have a Splitsy account they&apos;re
+          added right away; otherwise we email them an invite link to join.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
@@ -74,7 +79,7 @@ export default function MembersPanel({ group }: { group: GroupPayload }) {
             className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-strong px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             <UserPlus size={15} />
-            {loading ? "Adding…" : "Add"}
+            {loading ? "Sending…" : "Invite"}
           </button>
         </div>
         {error && <p className="mt-2 text-sm text-negative">{error}</p>}

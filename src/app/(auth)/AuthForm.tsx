@@ -8,9 +8,11 @@ import { Split } from "lucide-react";
 export default function AuthForm({
   mode,
   allowSignup,
+  next,
 }: {
   mode: "login" | "signup";
   allowSignup: boolean;
+  next?: string;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -39,7 +41,9 @@ export default function AuthForm({
         setLoading(false);
         return;
       }
-      router.push("/dashboard");
+      // Only follow safe, in-app relative paths.
+      const dest = next && next.startsWith("/") ? next : "/dashboard";
+      router.push(dest);
       router.refresh();
     } catch {
       setError("Network error — please try again");
@@ -98,6 +102,17 @@ export default function AuthForm({
             placeholder={isSignup ? "At least 6 characters" : "••••••••"}
             autoComplete={isSignup ? "new-password" : "current-password"}
           />
+
+          {!isSignup && (
+            <div className="mb-4 -mt-1 text-right">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-brand-strong hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
+          )}
 
           {error && (
             <p className="mb-3 rounded-lg bg-negative/10 px-3 py-2 text-sm text-negative">
